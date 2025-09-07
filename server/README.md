@@ -135,3 +135,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 ```
+
+## Generate Model/Controller/Requests and Resource for Categories
+```bash
+php artisan make:model Category -m -c -R --api
+php artisan make:resource CategoryResource
+```
