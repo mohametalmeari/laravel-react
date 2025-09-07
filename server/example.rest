@@ -1,0 +1,28 @@
+### AUTH ###
+###
+POST http://127.0.0.1:8000/api/register
+Content-Type: application/json
+
+{
+  "name": "David",
+  "email": "david@example.com",
+  "password": "!Pass678",
+  "password_confirmation": "!Pass678"
+}
+
+###
+POST http://127.0.0.1:8000/api/login
+Content-Type: application/json
+
+{
+  "email": "david@example.com",
+  "password": "!Pass678"
+}
+
+###
+POST http://127.0.0.1:8000/api/logout
+Authorization: Bearer access_token
+
+###
+GET http://127.0.0.1:8000/api/me
+Authorization: Bearer access_token
