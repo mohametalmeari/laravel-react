@@ -534,3 +534,11 @@ Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']); # +
 Route::get('/products/{id}', [ProductController::class, 'show']); # +
 ```
+
+## Generate Model and Resource for Colors
+
+```bash
+php artisan make:model Color -m
+php artisan make:migration create_color_product_table --create=color_product
+php artisan make:resource ColorResource
+```
