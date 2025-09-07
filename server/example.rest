@@ -26,3 +26,32 @@ Authorization: Bearer access_token
 ###
 GET http://127.0.0.1:8000/api/me
 Authorization: Bearer access_token
+
+### CATEGORIES ###
+###
+POST http://127.0.0.1:8000/api/categories
+Authorization: Bearer access_token
+Content-Type: application/json
+
+{
+  "name": "New Category"
+}
+
+###
+PUT http://127.0.0.1:8000/api/categories/1
+Authorization: Bearer access_token
+Content-Type: application/json
+
+{
+  "name": "New Category Updated"
+}
+
+###
+DELETE http://127.0.0.1:8000/api/categories/11
+Authorization: Bearer access_token
+
+###
+GET http://127.0.0.1:8000/api/categories
+
+###
+GET http://127.0.0.1:8000/api/categories/1

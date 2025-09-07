@@ -137,12 +137,14 @@ Route::post('/login', [AuthController::class, 'login']);
 ```
 
 ## Generate Model/Controller/Requests and Resource for Categories
+
 ```bash
 php artisan make:model Category -m -c -R --api
 php artisan make:resource CategoryResource
 ```
 
 ## Refactor Category Columns
+
 ```php
 # server\database\migrations\2025_09_07_183349_create_categories_table.php
         Schema::create('categories', function (Blueprint $table) {
@@ -166,4 +168,136 @@ class Category extends Model
 php artisan migrate
 # or reset database
 php artisan migrate:fresh
+```
+
+## Implement Categories Endpoints
+
+```php
+# server\app\Http\Controllers\CategoryController.php
+class CategoryController extends Controller
+{ #>
+    public function index()
+    {
+        try {
+            $categories = Category::all();
+
+            return CategoryResource::collection($categories);
+        } catch (\Throwable $th) {
+            error_log('CATEGORY_CONTROLLER__INDEX: ' . $th->getMessage());
+            return response()->json(['message' => 'Fetch categories failed'], 500);
+        }
+    }
+
+    public function store(StoreCategoryRequest $request)
+    {
+        try {
+            $category = Category::create($request->validated());
+
+            return new CategoryResource($category);
+        } catch (\Throwable $th) {
+            error_log('CATEGORY_CONTROLLER__STORE: ' . $th->getMessage());
+            return response()->json(['message' => 'Create category failed'], 500);
+        }
+    }
+
+    public function show(string $id)
+    {
+        try {
+            $category = Category::findOrFail($id);
+
+            return new CategoryResource($category);
+        } catch (\Throwable $th) {
+            error_log('CATEGORY_CONTROLLER__SHOW: ' . $th->getMessage());
+            return response()->json(['message' => 'Fetch category failed'], 500);
+        }
+    }
+
+    public function update(UpdateCategoryRequest $request, string $id)
+    {
+        try {
+            $data     = $request->validated();
+            $category = Category::findOrFail($id);
+            $category->update($data);
+
+            return new CategoryResource($category);
+        } catch (\Throwable $th) {
+            error_log('CATEGORY_CONTROLLER__UPDATE: ' . $th->getMessage());
+            return response()->json(['message' => 'Update category failed'], 500);
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        try {
+            $category = Category::findOrFail($id);
+            $category->delete();
+
+            return response()->json("", 204);
+        } catch (\Throwable $th) {
+            error_log('CATEGORY_CONTROLLER__DESTROY: ' . $th->getMessage());
+            return response()->json(['message' => 'Delete category failed'], 500);
+        }
+    }
+} #<
+```
+
+```php
+# server\app\Http\Requests\StoreCategoryRequest.php
+    public function authorize(): bool
+    { #>
+        return true;
+    } #<
+
+    public function rules(): array
+    {
+        return [ #>
+            "name" => "required|string|max:55|unique:categories,name",
+        ]; #<
+    }
+```
+
+```php
+# server\app\Http\Requests\UpdateCategoryRequest.php
+    public function authorize(): bool
+    { #>
+        return true;
+    } #<
+
+    public function rules(): array
+    {
+        return [ #>
+            "name" => "required|string|max:55|unique:categories,name" . $this->route('id'),
+        ]; #<
+    }
+```
+
+```php
+# server\app\Http\Resources\CategoryResource.php
+    public function toArray(Request $request): array
+    { #>
+        return [
+            'id'         => $this->id,
+            'name'       => $this->name,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+        ];
+    } #<
+```
+
+```php
+# server\routes\api.php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/categories', [CategoryController::class, 'store']); # +
+    Route::put('/categories/{id}', [CategoryController::class, 'update']); # +
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']); # +
+});
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/categories', [CategoryController::class, 'index']); # +
+Route::get('/categories/{id}', [CategoryController::class, 'show']); # +
 ```
