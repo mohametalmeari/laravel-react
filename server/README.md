@@ -367,3 +367,170 @@ php artisan migrate
 # or reset database
 php artisan migrate:fresh
 ```
+
+## Implement Products Endpoints
+
+```php
+# server\app\Http\Controllers\ProductController.php
+class ProductController extends Controller
+{ #>
+    public function index()
+    {
+        try {
+            $products = Product::all();
+
+            return ProductResource::collection($products);
+        } catch (\Throwable $th) {
+            error_log('PRODUCT_CONTROLLER__INDEX: ' . $th->getMessage());
+            return response()->json(['message' => 'Fetch products failed'], 500);
+        }
+    }
+
+    public function store(StoreProductRequest $request)
+    {
+        try {
+            $product = Product::create($request->validated());
+
+            return new ProductResource($product);
+        } catch (\Throwable $th) {
+            error_log('PRODUCT_CONTROLLER__STORE: ' . $th->getMessage());
+            return response()->json(['message' => 'Create product failed'], 500);
+        }
+    }
+
+    public function show(string $id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+
+            return new ProductResource($product);
+        } catch (\Throwable $th) {
+            error_log('PRODUCT_CONTROLLER__SHOW: ' . $th->getMessage());
+            return response()->json(['message' => 'Fetch product failed'], 500);
+        }
+    }
+
+    public function update(UpdateProductRequest $request, string $id)
+    {
+        try {
+            $data    = $request->validated();
+            $product = Product::findOrFail($id);
+            $product->update($data);
+
+            return new ProductResource($product);
+        } catch (\Throwable $th) {
+            error_log('PRODUCT_CONTROLLER__UPDATE: ' . $th->getMessage());
+            return response()->json(['message' => 'Update product failed'], 500);
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+
+            return response()->json("", 204);
+        } catch (\Throwable $th) {
+            error_log('PRODUCT_CONTROLLER__DESTROY: ' . $th->getMessage());
+            return response()->json(['message' => 'Delete product failed'], 500);
+        }
+    }
+} #<
+```
+
+```php
+# server\app\Http\Requests\StoreProductRequest.php
+    public function authorize(): bool
+    { #>
+        return true;
+    } #<
+
+    public function rules(): array
+    {
+        return [ #>
+            'name'        => 'required|string|max:55',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+
+            'category_id' => 'required|exists:categories,id',
+        ]; #<
+    }
+```
+
+```php
+# server\app\Http\Requests\UpdateProductRequest.php
+    public function authorize(): bool
+    { #>
+        return true;
+    } #<
+
+    public function rules(): array
+    {
+        return [ #>
+            'name'        => 'required|string|max:55',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+
+            'category_id' => 'required|exists:categories,id',
+        ]; #<
+    }
+```
+
+```php
+# server\app\Http\Resources\ProductResource.php
+    public function toArray(Request $request): array
+    { #>
+        return [
+            'id'          => $this->id,
+            'name'        => $this->name,
+            'description' => $this->description,
+            'price'       => $this->price,
+            'created_at'  => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at'  => $this->updated_at->format('Y-m-d H:i:s'),
+
+            'category_id' => $this->category_id,
+        ];
+    } #<
+```
+
+```php
+# server\app\Http\Resources\CategoryResource.php
+    public function toArray(Request $request): array
+    {
+        return [
+            'id'         => $this->id,
+            'name'       => $this->name,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            #>
+            'products'   => $this->products,
+            'products'   => ProductResource::collection($this->whenLoaded('products')),
+        ]; #<
+    }
+```
+
+```php
+# server\routes\api.php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
+    Route::post('/products', [ProductController::class, 'store']); # +
+    Route::put('/products/{id}', [ProductController::class, 'update']); # +
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']); # +
+});
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+Route::get('/products', [ProductController::class, 'index']); # +
+Route::get('/products/{id}', [ProductController::class, 'show']); # +
+```

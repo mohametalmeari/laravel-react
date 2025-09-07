@@ -55,3 +55,38 @@ GET http://127.0.0.1:8000/api/categories
 
 ###
 GET http://127.0.0.1:8000/api/categories/1
+
+### PRODUCTS ###
+###
+POST http://127.0.0.1:8000/api/products
+Authorization: Bearer access_token
+Content-Type: application/json
+
+{
+  "name": "New Product",
+  "description": "Product description",
+  "price": 99.99,
+  "category_id": 1
+}
+
+###
+PUT http://127.0.0.1:8000/api/products/product_uuid
+Authorization: Bearer access_token
+Content-Type: application/json
+
+{
+  "name": "Updated Product",
+  "description": "Updated description",
+  "price": 79.99,
+  "category_id": 1
+}
+
+###
+DELETE http://127.0.0.1:8000/api/products/product_uuid
+Authorization: Bearer access_token
+
+###
+GET http://127.0.0.1:8000/api/products
+
+###
+GET http://127.0.0.1:8000/api/products/product_uuid
