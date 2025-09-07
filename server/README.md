@@ -141,3 +141,29 @@ Route::post('/login', [AuthController::class, 'login']);
 php artisan make:model Category -m -c -R --api
 php artisan make:resource CategoryResource
 ```
+
+## Refactor Category Columns
+```php
+# server\database\migrations\2025_09_07_183349_create_categories_table.php
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id(); #>
+            $table->string('name')->unique();
+            $table->timestamps(); #<
+        });
+```
+
+```php
+# server\app\Models\Category.php
+class Category extends Model
+{ #>
+    protected $fillable = [
+        'name',
+    ];
+} #<
+```
+
+```php
+php artisan migrate
+# or reset database
+php artisan migrate:fresh
+```
