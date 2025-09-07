@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
+use App\Models\Color;
 use App\Models\Product;
 
 class ProductController extends Controller
@@ -30,6 +31,15 @@ class ProductController extends Controller
     {
         try {
             $product = Product::create($request->validated());
+
+            if ($request->has('colors')) {
+                $colorIds = [];
+                foreach ($request->colors as $name => $hex_code) {
+                    $color      = Color::firstOrCreate(['name' => $name, 'hex_code' => $hex_code]);
+                    $colorIds[] = $color->id;
+                }
+                $product->colors()->sync($colorIds);
+            }
 
             return new ProductResource($product);
         } catch (\Throwable $th) {
@@ -62,6 +72,15 @@ class ProductController extends Controller
             $data    = $request->validated();
             $product = Product::findOrFail($id);
             $product->update($data);
+
+            if ($request->has('colors')) {
+                $colorIds = [];
+                foreach ($request->colors as $name => $hex_code) {
+                    $color      = Color::firstOrCreate(['name' => $name, 'hex_code' => $hex_code]);
+                    $colorIds[] = $color->id;
+                }
+                $product->colors()->sync($colorIds);
+            }
 
             return new ProductResource($product);
         } catch (\Throwable $th) {

@@ -602,3 +602,69 @@ php artisan migrate
 # or reset database
 php artisan migrate:fresh
 ```
+
+## Update Products Controllers
+
+```php
+# server\app\Http\Controllers\ProductController.php
+    public function store(StoreProductRequest $request)
+    {
+        try {
+            $product = Product::create($request->validated());
+            #>
+            if ($request->has('colors')) {
+                $colorIds = [];
+                foreach ($request->colors as $name => $hex_code) {
+                    $color      = Color::firstOrCreate(['name' => $name, 'hex_code' => $hex_code]);
+                    $colorIds[] = $color->id;
+                }
+                $product->colors()->sync($colorIds);
+            }
+            #<
+            return new ProductResource($product);
+            ...
+
+    public function update(UpdateProductRequest $request, string $id)
+    {
+        try {
+            $data    = $request->validated();
+            $product = Product::findOrFail($id);
+            $product->update($data);
+            #>
+            if ($request->has('colors')) {
+                $colorIds = [];
+                foreach ($request->colors as $name => $hex_code) {
+                    $color      = Color::firstOrCreate(['name' => $name, 'hex_code' => $hex_code]);
+                    $colorIds[] = $color->id;
+                }
+                $product->colors()->sync($colorIds);
+            }
+            #<
+            return new ProductResource($product);
+            ...
+```
+
+```php
+# server\app\Http\Resources\ProductResource.php
+    public function toArray(Request $request): array
+    {
+        return [
+            ...
+            #>
+            'colors'      => $this->colors,
+            'colors'      => ColorResource::collection($this->whenLoaded('colors')),
+        ]; #<
+    }
+```
+
+```php
+# server\app\Http\Resources\ColorResource.php
+    public function toArray(Request $request): array
+    { #>
+        return [
+            'id'       => $this->id,
+            'name'     => $this->name,
+            'hex_code' => $this->hex_code,
+        ];
+    } #<
+```

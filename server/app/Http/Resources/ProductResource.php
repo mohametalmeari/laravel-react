@@ -22,6 +22,9 @@ class ProductResource extends JsonResource
             'updated_at'  => $this->updated_at->format('Y-m-d H:i:s'),
 
             'category_id' => $this->category_id,
+
+            'colors'      => $this->colors,
+            'colors'      => ColorResource::collection($this->whenLoaded('colors')),
         ];
     }
 }
