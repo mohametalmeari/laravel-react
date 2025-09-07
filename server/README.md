@@ -308,3 +308,62 @@ Route::get('/categories/{id}', [CategoryController::class, 'show']); # +
 php artisan make:model Product -m -c -R --api
 php artisan make:resource ProductResource
 ```
+
+## Refactor Product Columns
+
+```php
+# server\database\migrations\2025_09_07_200301_create_products_table.php
+        Schema::create('products', function (Blueprint $table) {  #>
+            $table->uuid('id')->primary();
+            $table->string('name', 55);
+            $table->text('description')->nullable();
+            $table->decimal('price', 8, 2);
+            $table->timestamps();
+
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+
+            $table->softDeletes(); // Optional
+        }); #<
+```
+
+```php
+# server\app\Models\Product.php
+class Product extends Model
+{ #>
+    use HasUuids;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+
+        'category_id',
+    ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+} #<
+```
+
+```php
+# server\app\Models\Category.php
+class Category extends Model
+{
+    protected $fillable = [
+        'name',
+    ];
+    #>
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+} #<
+```
+
+```php
+php artisan migrate
+# or reset database
+php artisan migrate:fresh
+```
