@@ -668,3 +668,10 @@ php artisan migrate:fresh
         ];
     } #<
 ```
+
+## Generate AdminOnly Middleware
+
+```bash
+php artisan make:middleware AdminOnly
+php artisan make:migration add_is_admin_to_users_table --table=users
+```
