@@ -542,3 +542,63 @@ php artisan make:model Color -m
 php artisan make:migration create_color_product_table --create=color_product
 php artisan make:resource ColorResource
 ```
+
+## Refactor Color Columns
+
+```php
+# server\database\migrations\2025_09_07_225349_create_colors_table.php
+        Schema::create('colors', function (Blueprint $table) { #>
+            $table->id();
+            $table->string('name');
+            $table->string('hex_code');
+            $table->timestamps();
+
+            $table->unique(['name', 'hex_code']);
+        }); #<
+```
+
+```php
+# server\database\migrations\2025_09_07_230438_create_color_product_table.php
+        Schema::create('color_product', function (Blueprint $table) {
+            $table->id(); #>
+            $table->foreignUuid('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('color_id')->constrained()->onDelete('cascade');
+            $table->timestamps(); #<
+        });
+```
+
+```php
+# server\app\Models\Color.php
+class Color extends Model
+{ #>
+    protected $fillable = [
+        'name',
+        'hex_code',
+    ];
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
+} #<
+```
+
+```php
+# server\app\Models\Product.php
+class Product extends Model
+{
+    ...
+
+    #>
+    public function colors()
+    {
+        return $this->belongsToMany(Color::class);
+    }
+} #<
+```
+
+```php
+php artisan migrate
+# or reset database
+php artisan migrate:fresh
+```
