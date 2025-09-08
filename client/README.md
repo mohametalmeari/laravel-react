@@ -8,3 +8,5 @@ npm i react-router axios form-serialize
 npm i
 npm run dev
 ```
+
+## Configure Tailwind and Router
