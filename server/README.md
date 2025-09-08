@@ -718,3 +718,48 @@ php artisan tinker
 >
 exit
 ```
+
+## Implement AdminOnly Middleware
+
+```php
+# server\app\Http\Middleware\AdminOnly.php
+    public function handle(Request $request, Closure $next): Response
+    { #>
+        $user = $request->user();
+        if (! $user || ! $user->is_admin) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        #<
+        return $next($request);
+    }
+```
+
+```php
+# server\routes\api.php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    // Route::put('/categories/{id}', [CategoryController::class, 'update']); # -
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+});
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+#>
+Route::middleware(['auth:sanctum', AdminOnly::class])->group(function () {
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+});
+#<
+```
