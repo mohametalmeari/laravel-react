@@ -675,3 +675,46 @@ php artisan migrate:fresh
 php artisan make:middleware AdminOnly
 php artisan make:migration add_is_admin_to_users_table --table=users
 ```
+
+## Add is_admin Column to Users
+
+```php
+# server\database\migrations\2025_09_07_235059_add_is_admin_to_users_table.php
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_admin')->default(false)->after('password'); # +
+        });
+
+        ...
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_admin'); # +
+        });
+```
+
+```php
+# server\app\Models\User.php
+    protected $fillable = [
+        ...
+
+        'is_admin', # +
+    ];
+```
+
+```php
+php artisan migrate
+# or reset database
+php artisan migrate:fresh
+```
+
+```bash
+php artisan tinker
+>
+\App\Models\User::create([
+    'name'     => 'Admin',
+    'email'    => 'admin@example.com',
+    'password' => \Illuminate\Support\Facades\Hash::make('Admin@78'),
+    'is_admin' => true,
+]);
+>
+exit
+```
