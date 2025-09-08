@@ -1,12 +1,15 @@
 import { RouterProvider } from "react-router";
 import { RootLayout } from "./layouts";
 import { router } from "./router";
+import { StateProvider } from "./contexts/StateProvider";
 
 function App() {
   return (
-    <RootLayout>
-      <RouterProvider router={router} />
-    </RootLayout>
+    <StateProvider>
+      <RootLayout>
+        <RouterProvider router={router} />
+      </RootLayout>
+    </StateProvider>
   );
 }
 

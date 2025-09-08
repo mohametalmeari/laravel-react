@@ -10,3 +10,5 @@ npm run dev
 ```
 
 ## Configure Tailwind and Router
+
+## Configure Axios
