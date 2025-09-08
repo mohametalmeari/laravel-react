@@ -1,1 +1,33 @@
 @import "tailwindcss";
+
+.auth-form {
+  @apply flex flex-col gap-4 p-8 border border-gray-200 rounded-lg shadow-lg max-w-sm w-full;
+}
+
+.auth-form input {
+  @apply p-2 border border-gray-300 rounded;
+}
+
+.auth-form button {
+  @apply bg-blue-500 text-white p-2 rounded hover:bg-blue-600;
+}
+
+.auth-form button:disabled {
+  @apply bg-gray-400;
+}
+
+.auth-form .link {
+  @apply text-sm text-gray-600;
+}
+
+.auth-form .link a {
+  @apply text-blue-500 hover:underline;
+}
+
+.auth-form .error {
+  @apply text-sm text-red-600;
+}
+
+button {
+  @apply duration-500
+}

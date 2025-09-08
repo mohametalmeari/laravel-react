@@ -12,3 +12,5 @@ npm run dev
 ## Configure Tailwind and Router
 
 ## Configure Axios
+
+## Setup Authentication
