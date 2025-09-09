@@ -8,12 +8,18 @@
   @apply p-2 border border-gray-300 rounded;
 }
 
-.auth-form button {
-  @apply bg-blue-500 text-white p-2 rounded hover:bg-blue-600;
+.edit-new-form input,
+.edit-new-form textarea,
+.edit-new-form select {
+  @apply p-2 border border-gray-300 rounded w-full;
 }
 
-.auth-form button:disabled {
-  @apply bg-gray-400;
+.edit-new-form textarea {
+  @apply min-h-20;
+}
+
+.auth-form button {
+  @apply bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-400;
 }
 
 .auth-form .link {
@@ -30,4 +36,24 @@
 
 button {
   @apply duration-500
+}
+
+nav a {
+  @apply text-gray-600 border-y-4 border-transparent font-semibold p-0.5
+}
+
+nav a:hover {
+  @apply border-b-gray-400
+}
+
+nav .active, nav .active:hover {
+  @apply border-b-gray-600
+}
+
+.outline-btn {
+  @apply border-2 border-blue-400 text-blue-400 font-semibold p-2 px-4 rounded hover:bg-blue-600/10 disabled:border-gray-400 disabled:text-gray-400 disabled:hover:bg-transparent;
+}
+
+.solid-btn {
+  @apply bg-blue-400 text-white font-semibold p-2 px-4 rounded hover:bg-blue-500 disabled:bg-gray-400 disabled:text-white;
 }

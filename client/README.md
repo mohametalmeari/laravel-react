@@ -14,3 +14,5 @@ npm run dev
 ## Configure Axios
 
 ## Setup Authentication
+
+## Setup UI/UX

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { axiosClient } from "../lib/axios-client";
 import { useStateContext } from "../contexts/StateProvider";
+import { SignOutButton } from "./SignOutButton";
 
 export const User = () => {
   const { user, setUser } = useStateContext();
@@ -18,7 +19,7 @@ export const User = () => {
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
       className="relative text-sm font-semibold text-gray-600 bg-amber-400 w-10 aspect-square rounded-full flex justify-center items-center"
-    >   
+    >
       {user?.name?.[0] || "N/A"}
       {user?.name && isVisible && (
         <div className="absolute bottom-0 translate-y-[100%] bg-white border border-gray-300 p-4 rounded-2xl">
